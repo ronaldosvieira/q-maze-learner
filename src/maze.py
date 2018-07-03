@@ -104,14 +104,28 @@ def main():
     '''for s in sorted(instance.states.values(), key = attrgetter('label')):
         print(s.label, list(map(lambda a: str(a[0]) + ': ' + str(a[1]), Q[s.label].items())))'''
     
-    for j in range(0, height):
-        for i in range(0, width):
-            if grid[i][j] != '-':
-                print(grid[i][j], end="")
-            else:
-                print(max(Q[(i, j)].keys(), key = lambda a: Q[(i, j)][a]), end = "")
-                
-        print()
+    with open('pi.txt', 'w') as pi_file:
+        for j in range(0, height):
+            line = ""
+            
+            for i in range(0, width):
+                if grid[i][j] != '-':
+                    line += grid[i][j]
+                else:
+                    line += max(Q[(i, j)].keys(), key = lambda a: Q[(i, j)][a])
+            
+            line += "\n"
+                    
+            pi_file.write(line)
+            
+    with open('q.txt', 'w') as w_file:
+        action_map = {'^': 'cima', 'v': 'abaixo', '>': 'direita', '<': 'esquerda'}
+        
+        states = sorted(map(attrgetter('label'), filter(lambda s: not s.is_terminal, instance.states.values())))
+        
+        for (i, j) in states:
+            for action in ['^', 'v', '<', '>']:
+                w_file.write("%d,%d,%s,%g\n" % (i, j, action_map[action], Q[(i, j)][action]))
     
 if __name__ == "__main__":
     main()
